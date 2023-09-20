@@ -1,0 +1,69 @@
+DROP TABLE sailors;
+DROP TABLE boats;
+DROP TABLE reserves;
+
+CREATE TABLE sailors (
+    sid INT PRIMARY KEY,
+    sname VARCHAR2(100),
+    rating FLOAT,
+    age INT
+);
+
+INSERT INTO sailors VALUES (22, 'Dustin', 7.0, 45);
+INSERT INTO sailors VALUES (31, 'Lubber', 8.0, 55.5);
+INSERT INTO sailors VALUES (58, 'Rusty', 10.0, 35);
+
+CREATE TABLE boats (
+    bid INT PRIMARY KEY,
+    bname VARCHAR2(100),
+    color VARCHAR2(100)
+);
+
+INSERT INTO boats VALUES (101, 'Titanic', 'White');
+INSERT INTO boats VALUES (103, 'Bigship', 'Black');
+
+CREATE TABLE reserves (
+    sid INT,
+    bid INT,
+    day DATE,
+    PRIMARY KEY (sid, bid, day),
+    CONSTRAINT reserves_fk1 FOREIGN KEY (sid) REFERENCES sailors(sid),
+    CONSTRAINT reserves_fk2 FOREIGN KEY (bid) REFERENCES boats(bid)
+);
+
+INSERT INTO reserves VALUES (22, 101, TO_DATE('10/10/96', 'MM/DD/YY'));
+INSERT INTO reserves VALUES (58, 103, TO_DATE('11/12/96', 'MM/DD/YY'));
+INSERT INTO reserves VALUES (31, 103, TO_DATE('2023-08-30', 'YYYY-MM-DD'));
+
+select * from sailors;
+select * from boats;
+select * from reserves;
+
+SELECT sname, rating
+FROM sailors
+WHERE rating >= 8;
+
+SELECT AVG(age) AS average_age
+FROM sailors;
+
+SELECT bname, COUNT(reserves.bid) AS reservation_count
+FROM boats
+LEFT JOIN reserves ON boats.bid = reserves.bid
+GROUP BY bname;
+
+WITH BoatReservations AS (
+    SELECT boats.bid, bname, COUNT(reserves.bid) AS reservation_count
+    FROM boats
+    LEFT JOIN reserves ON boats.bid = reserves.bid
+    GROUP BY boats.bid, bname
+)
+SELECT bname, reservation_count
+FROM BoatReservations
+WHERE reservation_count = (SELECT MAX(reservation_count) FROM BoatReservations);
+
+
+SELECT AVG(age) AS average_age
+FROM sailors
+WHERE rating >= 3;
+
+SELECT SYSDATE FROM DUAL;
